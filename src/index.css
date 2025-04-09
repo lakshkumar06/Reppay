@@ -1,0 +1,58 @@
+@import "tailwindcss";
+body{
+  background-color: black;
+  font-family: "Red Hat Display", sans-serif;
+
+  @apply text-white;
+}
+.flexCol{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.x-container{
+  @apply w-4/5 mx-auto max-w-[2000px];
+}
+input:focus{
+  outline: none;
+  border: 1.5px solid #fff;
+}
+
+
+.transition-transform {
+  transition: transform 0.4s;
+}
+
+
+
+
+/* App.css */
+.signup-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.btn-submit, .btn-wallet {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-wallet {
+  margin-top: 15px;
+  background-color: #007BFF;
+}
