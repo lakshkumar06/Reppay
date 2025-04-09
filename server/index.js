@@ -29,6 +29,7 @@ const db = new sqlite3.Database('./database.sqlite', (err) => {
         CREATE TABLE IF NOT EXISTS users (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           email TEXT UNIQUE NOT NULL,
+          name TEXT NOT NULL,
           wallet_address TEXT,
           wallet_type TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -157,10 +158,10 @@ app.post('/api/verify-otp', (req, res) => {
 
 // 3. Connect wallet and complete signup
 app.post('/api/connect-wallet', (req, res) => {
-  const { email, walletAddress, walletType } = req.body;
+  const { email, name, walletAddress, walletType } = req.body;
   
-  if (!email || !walletAddress || !walletType) {
-    return res.status(400).json({ error: 'Email, wallet address, and wallet type are required' });
+  if (!email || !name || !walletAddress || !walletType) {
+    return res.status(400).json({ error: 'Email, name, wallet address, and wallet type are required' });
   }
   
   try {
@@ -174,8 +175,8 @@ app.post('/api/connect-wallet', (req, res) => {
       if (row) {
         // Update existing user
         db.run(
-          'UPDATE users SET wallet_address = ?, wallet_type = ? WHERE email = ?',
-          [walletAddress, walletType, email],
+          'UPDATE users SET name = ?, wallet_address = ?, wallet_type = ? WHERE email = ?',
+          [name, walletAddress, walletType, email],
           function(err) {
             if (err) {
               console.error('Error updating user:', err);
@@ -192,8 +193,8 @@ app.post('/api/connect-wallet', (req, res) => {
       } else {
         // Create new user
         db.run(
-          'INSERT INTO users (email, wallet_address, wallet_type) VALUES (?, ?, ?)',
-          [email, walletAddress, walletType],
+          'INSERT INTO users (email, name, wallet_address, wallet_type) VALUES (?, ?, ?, ?)',
+          [email, name, walletAddress, walletType],
           function(err) {
             if (err) {
               console.error('Error creating user:', err);
@@ -226,18 +227,27 @@ app.get('/api/user/:email', (req, res) => {
   try {
     db.get('SELECT * FROM users WHERE email = ?', [email], (err, row) => {
       if (err) {
-        console.error('Error fetching user:', err);
-        return res.status(500).json({ error: 'Failed to fetch user' });
+        console.error('Error getting user:', err);
+        return res.status(500).json({ error: 'Failed to get user information' });
       }
       
       if (!row) {
         return res.status(404).json({ error: 'User not found' });
       }
       
-      res.json({ user: row });
+      res.json({ 
+        success: true, 
+        user: {
+          id: row.id,
+          email: row.email,
+          name: row.name,
+          wallet_address: row.wallet_address,
+          wallet_type: row.wallet_type
+        }
+      });
     });
   } catch (error) {
-    console.error('Error in get-user:', error);
+    console.error('Error in get user:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });

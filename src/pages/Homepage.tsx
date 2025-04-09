@@ -45,11 +45,9 @@ const Homepage = () => {
         }
       }
 
-      // Clear wallet information from sessionStorage instead of localStorage
+      // Clear wallet information from sessionStorage
       sessionStorage.removeItem('walletAddress');
       sessionStorage.removeItem('walletType');
-      
-      // Also clear the signup status to redirect to HomepageBL
       sessionStorage.removeItem('isUserSignedUp');
       
       // Update state
@@ -57,13 +55,13 @@ const Homepage = () => {
       setWalletType(null);
       
       // Show success message
-      alert('Wallet disconnected successfully');
+      alert('Logged out successfully');
       
       // Reload the page to reset the app state
       window.location.reload();
     } catch (error) {
-      console.error('Error disconnecting wallet:', error);
-      alert('Failed to disconnect wallet. Please try again.');
+      console.error('Error logging out:', error);
+      alert('Failed to log out. Please try again.');
     }
   };
 
@@ -93,7 +91,7 @@ const Homepage = () => {
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
                 onClick={disconnectWallet}
               >
-                Disconnect
+                Logout
               </button>
             </div>
           </div>

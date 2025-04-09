@@ -22,6 +22,7 @@ declare global {
 const Signup: React.FC<SignupProps> = ({ onSignupComplete }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,12 +36,16 @@ const Signup: React.FC<SignupProps> = ({ onSignupComplete }) => {
       setLoading(true);
       setError('');
       
+      if (!name.trim()) {
+        throw new Error('Please enter your name');
+      }
+      
       const response = await fetch(`${API_URL}/send-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, name }),
       });
 
       const data = await response.json();
@@ -132,6 +137,7 @@ const Signup: React.FC<SignupProps> = ({ onSignupComplete }) => {
         },
         body: JSON.stringify({ 
           email,
+          name,
           walletType,
           walletAddress
         }),
@@ -142,6 +148,10 @@ const Signup: React.FC<SignupProps> = ({ onSignupComplete }) => {
       if (!response.ok) {
         throw new Error(data.error || 'Failed to connect wallet');
       }
+
+      // Store wallet information in sessionStorage
+      sessionStorage.setItem('walletAddress', walletAddress);
+      sessionStorage.setItem('walletType', walletType);
 
       setCurrentStep(4);
       onSignupComplete();
@@ -158,7 +168,15 @@ const Signup: React.FC<SignupProps> = ({ onSignupComplete }) => {
       
       {currentStep === 1 && (
         <div className="step-1">
-          <h2>Enter Your Email</h2>
+          <h2>Enter Your Details</h2>
+          <input
+            type="text"
+            className="input-field"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter your name"
+            disabled={loading}
+          />
           <input
             type="email"
             className="input-field"
@@ -170,7 +188,7 @@ const Signup: React.FC<SignupProps> = ({ onSignupComplete }) => {
           <button
             className="btn-submit"
             onClick={handleEmailSubmit}
-            disabled={loading || !email}
+            disabled={loading || !email || !name}
           >
             {loading ? 'Sending OTP...' : 'Send OTP'}
           </button>
