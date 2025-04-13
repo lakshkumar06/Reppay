@@ -56,7 +56,8 @@ export default tseslint.config({
 
 #Reppay
 Introduction:
-https://youtu.be/zSoKueBvEgY
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/zSoKueBvEgY/0.jpg)](https://www.youtube.com/watch?v=zSoKueBvEgY)
+
 
 🚀 About Reppay
 
