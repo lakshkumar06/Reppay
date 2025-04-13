@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Signup.css';
+import { useWallet } from "@solana/wallet-adapter-react";
 
 interface SignupProps {
   onSignupComplete: () => void;
@@ -149,9 +150,10 @@ const Signup: React.FC<SignupProps> = ({ onSignupComplete }) => {
         throw new Error(data.error || 'Failed to connect wallet');
       }
 
-      // Store wallet information in sessionStorage
+      // Store wallet information and user email in sessionStorage
       sessionStorage.setItem('walletAddress', walletAddress);
       sessionStorage.setItem('walletType', walletType);
+      sessionStorage.setItem('userEmail', email);
 
       setCurrentStep(4);
       onSignupComplete();
@@ -168,7 +170,7 @@ const Signup: React.FC<SignupProps> = ({ onSignupComplete }) => {
       
       {currentStep === 1 && (
         <div className="step-1">
-          <h2>Enter Your Details</h2>
+          <h2 className='text-[#3b3b3b]'>Enter Your Details</h2>
           <input
             type="text"
             className="input-field"

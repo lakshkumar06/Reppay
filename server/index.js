@@ -23,6 +23,7 @@ const db = new sqlite3.Database('./database.sqlite', (err) => {
     db.serialize(() => {
       db.run(`DROP TABLE IF EXISTS otps`);
       db.run(`DROP TABLE IF EXISTS users`);
+      db.run(`DROP TABLE IF EXISTS escrow`);
       
       // Create tables with correct schema
       db.run(`
@@ -44,6 +45,22 @@ const db = new sqlite3.Database('./database.sqlite', (err) => {
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           expires_at DATETIME NOT NULL,
           is_used INTEGER DEFAULT 0
+        )
+      `);
+
+      db.run(`
+        CREATE TABLE IF NOT EXISTS escrow (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          beneficiary_email TEXT NOT NULL,
+          beneficiary_name TEXT NOT NULL,
+          amount TEXT NOT NULL,
+          currency TEXT NOT NULL,
+          sender_wallet_address TEXT NOT NULL,
+          sender_wallet_type TEXT NOT NULL,
+          status TEXT DEFAULT 'pending',
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          claimed_at DATETIME,
+          FOREIGN KEY (beneficiary_email) REFERENCES users(email)
         )
       `);
     });
@@ -248,6 +265,133 @@ app.get('/api/user/:email', (req, res) => {
     });
   } catch (error) {
     console.error('Error in get user:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// 5. Create escrow transfer
+app.post('/api/escrow/create', (req, res) => {
+  const { 
+    beneficiaryEmail, 
+    beneficiaryName, 
+    amount, 
+    currency,
+    senderWalletAddress,
+    senderWalletType 
+  } = req.body;
+  
+  if (!beneficiaryEmail || !beneficiaryName || !amount || !currency || !senderWalletAddress || !senderWalletType) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+  
+  try {
+    db.run(
+      `INSERT INTO escrow (
+        beneficiary_email, 
+        beneficiary_name, 
+        amount, 
+        currency,
+        sender_wallet_address,
+        sender_wallet_type
+      ) VALUES (?, ?, ?, ?, ?, ?)`,
+      [beneficiaryEmail, beneficiaryName, amount, currency, senderWalletAddress, senderWalletType],
+      function(err) {
+        if (err) {
+          console.error('Error creating escrow:', err);
+          return res.status(500).json({ error: 'Failed to create escrow' });
+        }
+        
+        res.json({ 
+          success: true, 
+          message: 'Escrow created successfully',
+          escrowId: this.lastID
+        });
+      }
+    );
+  } catch (error) {
+    console.error('Error in create escrow:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// 6. Get escrow balance for a user
+app.get('/api/escrow/balance/:email', (req, res) => {
+  const { email } = req.params;
+  
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+  
+  try {
+    db.all(
+      `SELECT * FROM escrow 
+       WHERE beneficiary_email = ? AND status = 'pending'
+       ORDER BY created_at DESC`,
+      [email],
+      (err, rows) => {
+        if (err) {
+          console.error('Error getting escrow balance:', err);
+          return res.status(500).json({ error: 'Failed to get escrow balance' });
+        }
+        
+        res.json({ 
+          success: true, 
+          escrowEntries: rows
+        });
+      }
+    );
+  } catch (error) {
+    console.error('Error in get escrow balance:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// 7. Claim escrow
+app.post('/api/escrow/claim/:id', (req, res) => {
+  const { id } = req.params;
+  const { beneficiaryEmail } = req.body;
+  
+  if (!id || !beneficiaryEmail) {
+    return res.status(400).json({ error: 'Escrow ID and beneficiary email are required' });
+  }
+  
+  try {
+    // First verify that the escrow belongs to the beneficiary
+    db.get(
+      'SELECT * FROM escrow WHERE id = ? AND beneficiary_email = ? AND status = ?',
+      [id, beneficiaryEmail, 'pending'],
+      (err, row) => {
+        if (err) {
+          console.error('Error verifying escrow:', err);
+          return res.status(500).json({ error: 'Failed to verify escrow' });
+        }
+        
+        if (!row) {
+          return res.status(404).json({ error: 'Escrow not found or already claimed' });
+        }
+        
+        // Update escrow status to claimed
+        db.run(
+          'UPDATE escrow SET status = ?, claimed_at = datetime("now") WHERE id = ?',
+          ['claimed', id],
+          function(err) {
+            if (err) {
+              console.error('Error claiming escrow:', err);
+              return res.status(500).json({ error: 'Failed to claim escrow' });
+            }
+            
+            res.json({ 
+              success: true, 
+              message: 'Escrow claimed successfully',
+              amount: row.amount,
+              currency: row.currency
+            });
+          }
+        );
+      }
+    );
+  } catch (error) {
+    console.error('Error in claim escrow:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });

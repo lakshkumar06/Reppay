@@ -50,7 +50,7 @@ const HomepageBL = () => {
       if (user.wallet_type === 'phantom') {
         // Connect to Phantom wallet
         if (!window.phantom?.solana) {
-          setError("Phantom wallet is not installed. Please install it and try again.");
+          setError("Wallet linked to this account no found.");
           return;
         }
 
@@ -71,7 +71,7 @@ const HomepageBL = () => {
       } else if (user.wallet_type === 'metamask') {
         // Connect to MetaMask wallet
         if (!window.ethereum) {
-          setError("MetaMask is not installed. Please install it and try again.");
+          setError("Wallet linked to this account no found.");
           return;
         }
 

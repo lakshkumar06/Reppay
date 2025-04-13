@@ -6,6 +6,19 @@ import MerchantView from './pages/MerchantView'; // Your Merchant view component
 import SponsorView from './pages/SponsorView'; // Your Sponsor view component
 import Signup from './pages/Signup'; // Import Signup page
 import { useState, useEffect } from 'react';
+import {
+  ConnectionProvider,
+  WalletProvider
+} from '@solana/wallet-adapter-react';
+import {
+  WalletModalProvider
+} from '@solana/wallet-adapter-react-ui';
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
+import { clusterApiUrl } from '@solana/web3.js';
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+
+// Import wallet adapter CSS
+import '@solana/wallet-adapter-react-ui/styles.css';
 
 // Contract address for ZepPay
 const App = () => {
@@ -20,19 +33,32 @@ const App = () => {
     setIsUserSignedUp(signedUp);
   }, []);
 
+  // Set up Solana connection to devnet
+  const network = WalletAdapterNetwork.Devnet;
+  const endpoint = clusterApiUrl(network);
+  
+  // Initialize wallet adapters
+  const wallets = [new PhantomWalletAdapter()];
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={isUserSignedUp ? <Homepage /> : <HomepageBL />} />
-        <Route path="/signup" element={<Signup onSignupComplete={() => {
-          // Store in sessionStorage instead of localStorage
-          sessionStorage.setItem('isUserSignedUp', 'true');
-          setIsUserSignedUp(true);
-        }} />} />
-        <Route path="/merchant" element={<MerchantView/>} />
-        <Route path="/sponsor" element={<SponsorView />} />
-      </Routes>
-    </Router>
+    <ConnectionProvider endpoint={endpoint}>
+      <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={isUserSignedUp ? <Homepage /> : <HomepageBL />} />
+              <Route path="/signup" element={<Signup onSignupComplete={() => {
+                // Store in sessionStorage instead of localStorage
+                sessionStorage.setItem('isUserSignedUp', 'true');
+                setIsUserSignedUp(true);
+              }} />} />
+              <Route path="/merchant" element={<MerchantView/>} />
+              <Route path="/sponsor" element={<SponsorView />} />
+            </Routes>
+          </Router>
+        </WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
   );
 };
 
