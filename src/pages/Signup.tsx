@@ -165,93 +165,101 @@ const Signup: React.FC<SignupProps> = ({ onSignupComplete }) => {
   };
 
   return (
-    <div className="signup-container">
-      {error && <div className="error-message">{error}</div>}
-      
-      {currentStep === 1 && (
-        <div className="step-1">
-          <h2 className='text-[#3b3b3b]'>Enter Your Details</h2>
-          <input
-            type="text"
-            className="input-field"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter your name"
-            disabled={loading}
-          />
-          <input
-            type="email"
-            className="input-field"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email address"
-            disabled={loading}
-          />
-          <button
-            className="btn-submit"
-            onClick={handleEmailSubmit}
-            disabled={loading || !email || !name}
-          >
-            {loading ? 'Sending OTP...' : 'Send OTP'}
-          </button>
-        </div>
-      )}
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-gray-800 p-8 rounded-xl shadow-lg">
+        {error && (
+          <div className="bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
+        
+        {currentStep === 1 && (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-center text-white pb-[1em]">Enter Your Details</h2>
+            <input
+              type="text"
+              className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your name"
+              disabled={loading}
+            />
+            <input
+              type="email"
+              className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email address"
+              disabled={loading}
+            />
+            <button
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleEmailSubmit}
+              disabled={loading || !email || !name}
+            >
+              {loading ? 'Sending OTP...' : 'Send OTP'}
+            </button>
+          </div>
+        )}
 
-      {currentStep === 2 && (
-        <div className="step-2">
-          <h2>Enter OTP</h2>
-          <p className="otp-info">We've sent an OTP to {email}</p>
-          <input
-            type="text"
-            className="input-field"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            placeholder="Enter OTP"
-            disabled={loading}
-          />
-          <button
-            className="btn-submit"
-            onClick={handleOtpSubmit}
-            disabled={loading || !otp}
-          >
-            {loading ? 'Verifying...' : 'Verify OTP'}
-          </button>
-        </div>
-      )}
+        {currentStep === 2 && (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-center text-gray-100">Enter OTP</h2>
+            <p className="text-center text-gray-300">We've sent an OTP to {email}</p>
+            <input
+              type="text"
+              className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              placeholder="Enter OTP"
+              disabled={loading}
+            />
+            <button
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleOtpSubmit}
+              disabled={loading || !otp}
+            >
+              {loading ? 'Verifying...' : 'Verify OTP'}
+            </button>
+          </div>
+        )}
 
-      {currentStep === 3 && (
-        <div className="step-3">
-          <h2>Connect Your Wallet</h2>
-          <p className="wallet-info">Choose your preferred wallet to continue</p>
-          <button
-            className="btn-wallet"
-            onClick={() => handleWalletConnection('phantom')}
-            disabled={loading}
-          >
-            Connect Phantom Wallet
-          </button>
-          <button
-            className="btn-wallet"
-            onClick={() => handleWalletConnection('metamask')}
-            disabled={loading}
-          >
-            Connect MetaMask Wallet
-          </button>
-        </div>
-      )}
+        {currentStep === 3 && (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-center text-gray-100">Connect Your Wallet</h2>
+            <p className="text-center text-gray-300">Choose your preferred wallet to continue</p>
+            <div className="space-y-4">
+              <button
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-300 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => handleWalletConnection('phantom')}
+                disabled={loading}
+              >
+                Connect Phantom Wallet
+              </button>
+              <button
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-400 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => handleWalletConnection('metamask')}
+                disabled={loading}
+              >
+                Connect MetaMask Wallet
+              </button>
+            </div>
+          </div>
+        )}
 
-      {currentStep === 4 && (
-        <div className="step-3">
-          <h2>Success!</h2>
-          <p className="wallet-info">Your account has been created successfully.</p>
-          <button
-            className="btn-submit"
-            onClick={() => navigate('/')}
-          >
-            Go to Dashboard
-          </button>
-        </div>
-      )}
+        {currentStep === 4 && (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-center text-gray-100">Success!</h2>
+            <p className="text-center text-gray-300">Your account has been created successfully.</p>
+            <button
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              onClick={() => navigate('/')}
+            >
+              Go to Dashboard
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

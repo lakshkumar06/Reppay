@@ -69,7 +69,7 @@ const Homepage = () => {
     <div className='min-h-screen flexCol'>
       {/* Wallet Info Section */}
       {walletAddress && (
-        <div className="w-4/5 mx-auto max-w-[2000px] mb-8 bg-[#141a20] p-4 rounded-[20px]">
+        <div className="w-4/5 mx-auto max-w-[2000px] mb-8 bg-[#141a20] px-[4vw] py-[30px] rounded-[20px]">
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-[18px] font-medium">Connected Wallet</h3>

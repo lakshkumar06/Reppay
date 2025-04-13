@@ -166,7 +166,7 @@ const SponsorView = () => {
         const parsedInfo = account.account.data.parsed.info;
         const balance = parsedInfo.tokenAmount.uiAmount;
         console.log('Token account balance:', balance);
-        totalBalance += balance;
+        totalBalance += balance || 0;
       }
       
       console.log('Total USDC balance:', totalBalance);
@@ -182,8 +182,12 @@ const SponsorView = () => {
     try {
       const ethereumWindow = window as unknown as EthereumWindow;
       
+      if (!ethereumWindow.ethereum) {
+        throw new Error('MetaMask not found');
+      }
+
       // ERC-20 balanceOf function call
-      const balance = await ethereumWindow.ethereum?.request({
+      const balance = await ethereumWindow.ethereum.request({
         method: 'eth_call',
         params: [
           {
@@ -197,7 +201,10 @@ const SponsorView = () => {
       if (balance) {
         // Convert hex to decimal and divide by 10^6 (USDC has 6 decimals)
         const balanceInUSDC = parseInt(balance, 16) / 1e6;
+        console.log('Ethereum USDC balance:', balanceInUSDC);
         setAccountBalance(balanceInUSDC.toFixed(2));
+      } else {
+        setAccountBalance("0");
       }
     } catch (error) {
       console.error('Error fetching Ethereum USDC balance:', error);
@@ -208,13 +215,15 @@ const SponsorView = () => {
   // Function to fetch wallet balance
   const fetchWalletBalance = async () => {
     const walletAddress = wallet.publicKey?.toBase58();
-
     const walletType = sessionStorage.getItem('walletType');
 
     if (!walletAddress || !walletType) {
+      console.log('No wallet address or type found');
       setAccountBalance("0");
       return;
     }
+
+    console.log('Fetching balance for:', walletAddress, 'Type:', walletType);
 
     if (walletType === 'phantom') {
       await getSolanaBalance(walletAddress);
@@ -225,7 +234,9 @@ const SponsorView = () => {
 
   // Fetch balance when component mounts and when wallet changes
   useEffect(() => {
-    fetchWalletBalance();
+    if (wallet.connected) {
+      fetchWalletBalance();
+    }
     
     // Set up event listeners for balance updates
     const phantomWindow = window as unknown as PhantomWindow;
@@ -310,17 +321,16 @@ const SponsorView = () => {
         ethereumWindow.ethereum.on('accountsChanged', () => {});
       }
     };
-  }, []);
+  }, [wallet.connected]);
 
   const handleGoBack = () => {
     navigate('/');
   };
 
   const pastBeneficiaries: Beneficiary[] = [
-    { name: "John Doe", email: "lakumar@ttu.edu" },
-    { name: "Jane Smith", email: "k.laksh@hotmail.com" },
-    { name: "Alice Johnson", email: "alice@example.com" },
-    { name: "Bob Brown", email: "bob@example.com" },
+    { name: "Laksh Kumar", email: "lakumar@ttu.edu" },
+    { name: "Shanthan", email: "shanthanttu.cs@gmail.com" },
+    { name: "Laksh Kumar", email: "k.laksh@hotmail.com" },
   ];
 
   const checkUserRegistration = async (email: string) => {
@@ -534,7 +544,7 @@ const SponsorView = () => {
         
         {/* Add detailed connection info when connected */}
         {programConnected && (
-          <div className="bg-[#2b3642] text-[14px] px-[5vw] py-[10px] mb-[20px] rounded-[10px]">
+          <div className="bg-[#2b3642] text-[14px] px-[2vw] py-[10px] mb-[20px] rounded-[10px] mx-[5vw]">
             <div className="flex justify-between">
               <div>
                 <span className="font-bold">Program ID: </span>
